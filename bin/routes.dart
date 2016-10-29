@@ -7,6 +7,8 @@ class Routes extends Router {
   Routes() {
 
     Sync("questions", CtrlQuestion.SyncQuestion, new Question());
+    Get("questions", CtrlQuestion.GetQuestion);
+
 
   }
 

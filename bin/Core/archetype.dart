@@ -54,7 +54,10 @@ class Archetype {
 
   // Fetch all of this model
   all() async {
-
+    var c = await _open();
+    var vals = await _r.table(Table).orderBy(_r.desc('id')).run(c);
+    c.close();
+    return vals;
   }
 
   sync() async {

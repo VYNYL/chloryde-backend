@@ -9,10 +9,18 @@ class Router {
 
   Map<String, Map<String, dynamic>> _routes = {
     "put": {},
-    "sync": {}
+    "sync": {},
+    "desync": {},
+    "get": {}
   };
 
   Map<String, List<WebSocket>> _syncs = new Map<String, List<WebSocket>>();
+
+  Get(String resource, Function controller) {
+    _routes['get'][resource] = {
+      "controller": controller
+    };
+  }
 
   Put(String resource, Function controller) {
     _routes['put'][resource] = {
@@ -28,28 +36,54 @@ class Router {
     };
   }
 
+  Desync(String resource, Function controller, Archetype a) {
+
+  }
+
   // Synchronizes a socket to a resource
   // Helper function to add a websocket to the changefeed broadcast
   _sync(WebSocket ws, Request req) async {
 
     Map<dynamic, dynamic> r = _routes[req.action][req.resource];
 
-    // Initialize the changefeed if it doesn't exist
+    // Initialize the socketlist if it doesn't exist
     if (!_syncs.containsKey(r['archetype'].Table)) {
       _syncs[r['archetype'].Table] = [];
+    }
+
+    // If there are no sockets in the socketlist, then initialize the changefeed
+    if (_syncs[r['archetype'].Table].length <= 0) {
       _changefeed(_syncs[r['archetype'].Table], r['_controller'], await r['archetype'].sync());
     }
 
+    // Skip existing sync connections
     if (_syncs[r['archetype'].Table].contains(ws)) return;
+
     _syncs[r['archetype'].Table].add(ws);
   }
 
   // Broadcast changes from a certain feed to a set of sockets through a controller
-  _changefeed(socketlist, controller, feed) async {
+  _changefeed(List<WebSocket> socketlist, controller, Stream<dynamic> feed) async {
     await for (var change in feed) {
+      var stale = [];
       for (WebSocket ws in socketlist) {
-        ws.add(controller(ws, change));
+
+        // Prepare to trim out stale connections
+        if (ws.readyState == WebSocket.CLOSING || ws.readyState == WebSocket.CLOSED) {
+          stale.add(ws);
+          continue;
+        }
+
+        print("Sync update");
+        controller(ws, change);
       }
+      // Remove stale connections
+      for (var connection in stale) {
+        socketlist.remove(connection);
+      }
+
+      // No more sockets, close changefeed
+      if (socketlist.length <= 0) return;
     }
   }
 
