@@ -1,0 +1,5 @@
+name: server
+version: 0.0.1
+description: A simple console application.
+dependencies:
+  rethinkdb_driver: '^2.3.1'
