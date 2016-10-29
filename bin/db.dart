@@ -19,9 +19,8 @@ class ChlorydeDB {
   }
 
   subscribe(
-      Stream<Map<String, Map<String, String>>> istream,
-      sockets) async {
-    stream.listen((Map<String, Map<String, String>> res) {
+    Stream<Map<String, Map<String, String>>> istream) async {
+    await for (Map<String, Map<String, String>> res in stream) {
       if (res.containsKey('insert')) {
         Map cmd = res['insert'];
         var table = cmd['table'];
@@ -29,14 +28,11 @@ class ChlorydeDB {
         cmd.remove('table');
         cmd.remove('from');
         db.table(table).insert(cmd).run(c).then((e) {
-          broadcast(sockets, fromHash, {
-            "response": "questions",
-            "text": "new questions arrived",
-            "data": cmd
-          });
+
         });
       }
-    }).onDone(() => c.close());
+    }
+    c.close();
   }
 
   listen() {
