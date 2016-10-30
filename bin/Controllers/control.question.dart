@@ -8,10 +8,10 @@ class CtrlQuestion {
   static SyncQuestion(WebSocket ws, req) {
 
     Map response = {};
+
     response['action'] = 'sync';
-    response['sync_action'] = 'new';
     response['resource'] = 'questions';
-    response['data'] = [req["new_val"]];
+    response['data'] = req;
 
     ws.add(JSON.encode(response));
   }
@@ -27,6 +27,16 @@ class CtrlQuestion {
     response['data'] = questions;
 
     ws.add(JSON.encode(response));
+  }
+
+  static PutQuestion(WebSocket ws, Request req) async {
+
+    Question q = new Question();
+
+    q.populate(req.data);
+
+    await q.save();
+
   }
 
 }

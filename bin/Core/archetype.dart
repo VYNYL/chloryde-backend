@@ -7,32 +7,20 @@ class Archetype {
   bool Timestamps = true;
   String Table;
 
-  Map<String, dynamic> _fields = new Map<String, dynamic>();
+  Map<String, dynamic> _fields = {};
   Rethinkdb _r = new Rethinkdb();
 
-  // Allow dynamic property setting based on Fields map
-  noSuchMethod(Invocation invoc) {
-    if (invoc.isGetter) {
-      String prop = invoc.memberName.toString();
-      if (Fields.contains(prop)) {
-        if (_fields.containsKey(prop)) return _fields[prop];
-        return null;
-      } else {
-        super.noSuchMethod(invoc);
-      }
-    }
-
-    if (invoc.isSetter) {
-      String prop = invoc.memberName.toString().replaceAll('=', '');
-      var val = invoc.positionalArguments.first;
-      if (Fields.contains(val)) {
-        _fields[prop] = val;
-      } else {
-        super.noSuchMethod(invoc);
-      }
-    }
+  operator [](String i) {
+    if (Fields.contains(i) && _fields.containsKey(i)) return _fields[i];
+    return null;
   }
 
+  operator []=(String i, dynamic value) {
+    if (Fields.contains(i)) {
+      return _fields[i] = value;
+    }
+    return null;
+  }
 
   // Helper function to quickly open a database connection;
   _open() {
@@ -40,10 +28,18 @@ class Archetype {
     return _r.connect(db: 'test', host: '127.0.0.1', port: 28015);
   }
 
+  populate(data) {
+    data.forEach((k, v) {
+      if (Fields.contains(k)) this[k] = v;
+    });
+  }
+
   // Save model changes
   save() async {
-    var c = _open();
-    _r.table(Table).insert(_fields).run(c);
+    var c = await _open();
+    print(_fields);
+    if (Timestamps) _fields['created_at'] = new DateTime.now().millisecondsSinceEpoch;
+    await _r.table(Table).insert(_fields).run(c);
     c.close();
   }
 
