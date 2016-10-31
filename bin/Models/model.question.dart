@@ -6,7 +6,8 @@ class Question extends Archetype {
     'id',
     'author',
     'title',
-    'body'
+    'body',
+    'tags'
   ];
 
   String Table = "questions";
