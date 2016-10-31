@@ -1,0 +1,10 @@
+version: '2'
+services:
+  rethinkdb:
+      image: rethinkdb
+  chloryde-backend:
+    build: .
+    ports:
+      - "4040:4040"
+    depends_on:
+      - rethinkdb

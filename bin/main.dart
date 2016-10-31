@@ -5,6 +5,7 @@ import 'Core/boot.dart';
 main() async {
   try {
 
+    print("Listening in server");
     // Initialize application
     await Boot.strap();
 

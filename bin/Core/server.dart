@@ -15,7 +15,7 @@ class Server {
   start(Router) async {
     // Initialize server
     // TODO: Utilize environment
-    var s = await HttpServer.bind('127.0.0.1', 4040);
+    var s = await HttpServer.bind('0.0.0.0', 4040);
 
     // Await connections
     await for (HttpRequest req in s) {
