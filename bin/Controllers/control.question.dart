@@ -20,13 +20,7 @@ class CtrlQuestion {
     Question qs = new Question();
     var questions = await qs.all();
 
-    Map response = {};
-
-    response['action'] = 'get';
-    response['resource'] = 'questions';
-    response['data'] = questions;
-
-    req.socket.add(JSON.encode(response));
+    req.respond(questions);
   }
 
   static PutQuestion(Request req) async {
@@ -35,9 +29,9 @@ class CtrlQuestion {
 
     var isValid = await q.validate(req.data);
     if (!isValid) {
-      req.socket.add(JSON.encode({
+      req.respond({
         "error": "Invalid question format"
-      }));
+      });
       return;
     }
 
@@ -45,18 +39,32 @@ class CtrlQuestion {
 
     await q.save();
 
+    req.respond("success");
+
   }
 
   static PatchQuestion(Request req) async {
     Question q = new Question();
+    var isValid = await q.validate(req.data);
+    if (!isValid) {
+      req.respond({
+        "error": "Invalid question format"
+      });
+      return;
+    }
     await q.get(req.data['id']);
     await q.update(req.data);
+
+    req.respond("success");
 
   }
 
   static DeleteQuestion(Request req) async {
     Question q = new Question();
     await q.delete(req.data['id']);
+
+    req.respond("success");
+
   }
 
 }

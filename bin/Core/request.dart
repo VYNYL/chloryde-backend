@@ -40,6 +40,18 @@ class Request {
     return true;
   }
 
+  respond(data) {
+
+    Map response = {};
+
+    response['action'] = action;
+    response['resource'] = resource;
+    response['data'] = data;
+
+    socket.add(JSON.encode(response));
+
+  }
+
   Request(String _req, WebSocket socket, Map<dynamic, dynamic>_routes) {
     Map req;
     this.socket = socket;
