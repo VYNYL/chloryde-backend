@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 class Request {
 
@@ -11,6 +12,8 @@ class Request {
   String resource;
   Map<dynamic, dynamic> data;
   String raw;
+
+  WebSocket socket;
 
   dynamic _valid = false;
   dynamic get isValid => _valid;
@@ -37,8 +40,10 @@ class Request {
     return true;
   }
 
-  Request(String _req, Map<dynamic, dynamic>_routes) {
+  Request(String _req, WebSocket socket, Map<dynamic, dynamic>_routes) {
     Map req;
+    this.socket = socket;
+
     try {
       raw = _req;
       req = JSON.decode(_req);

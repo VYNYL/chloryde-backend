@@ -12,6 +12,7 @@ class Routes extends Router {
 
     Get("questions", CtrlQuestion.GetQuestion);
 
+    Delete("questions", CtrlQuestion.DeleteQuestion);
 
   }
 

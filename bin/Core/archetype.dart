@@ -2,7 +2,7 @@ import 'dart:async';
 import './db.dart';
 import 'package:json_schema/json_schema.dart' as Scheme;
 
-class Archetype {
+class Archetype<C extends Archetype> {
 
   List<String> Fields;
   bool Timestamps = true;
@@ -31,15 +31,15 @@ class Archetype {
   }
 
   // Helper function to quickly open a database connection;
-  _open() async {
+  static _open() async {
     // TODO: Utilize environments
     var c = await db.connect();
     return c;
   }
 
-  populate(data) {
+  populate([ data, unsafe = false ]) {
     data.forEach((k, v) {
-      if (Fields.contains(k)) this[k] = v;
+      if (Fields.contains(k) || unsafe == true) this[k] = v;
     });
   }
 
@@ -53,8 +53,14 @@ class Archetype {
   }
 
   // Delete model
-  delete() async {
-
+  delete([id = -1]) async {
+    var c = await _open();
+    if (id == -1) {
+      await db.r.table(Table).get(this['id']).delete().run(c);
+    } else {
+      await db.r.table(Table).get(id).delete().run(c);
+    }
+    c.close();
   }
 
   // Fetch all of this model
@@ -64,6 +70,15 @@ class Archetype {
     c.close();
     return vals;
   }
+
+  get(id) async {
+    var c = await _open();
+    var data = await db.r.table(Table).get(id).run(c);
+    this.populate(data, true);
+    c.close();
+  }
+
+
 
   sync() async {
     var c = await _open();

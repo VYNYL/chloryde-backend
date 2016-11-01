@@ -16,7 +16,7 @@ class CtrlQuestion {
     ws.add(JSON.encode(response));
   }
 
-  static GetQuestion(WebSocket ws, Request req) async {
+  static GetQuestion(Request req) async {
     Question qs = new Question();
     var questions = await qs.all();
 
@@ -26,16 +26,16 @@ class CtrlQuestion {
     response['resource'] = 'questions';
     response['data'] = questions;
 
-    ws.add(JSON.encode(response));
+    req.socket.add(JSON.encode(response));
   }
 
-  static PutQuestion(WebSocket ws, Request req) async {
+  static PutQuestion(Request req) async {
 
     Question q = new Question();
 
     var isValid = await q.validate(req.data);
     if (!isValid) {
-      ws.add(JSON.encode({
+      req.socket.add(JSON.encode({
         "error": "Invalid question format"
       }));
       return;
@@ -45,6 +45,11 @@ class CtrlQuestion {
 
     await q.save();
 
+  }
+
+  static DeleteQuestion(Request req) async {
+    Question q = new Question();
+    await q.delete(req.data['id']);
   }
 
 }

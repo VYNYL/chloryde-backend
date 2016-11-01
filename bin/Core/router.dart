@@ -11,7 +11,8 @@ class Router {
     "put": {},
     "sync": {},
     "desync": {},
-    "get": {}
+    "get": {},
+    "delete": {}
   };
 
   Map<String, List<WebSocket>> _syncs = new Map<String, List<WebSocket>>();
@@ -24,6 +25,12 @@ class Router {
 
   Put(String resource, Function controller) {
     _routes['put'][resource] = {
+      "controller": controller
+    };
+  }
+
+  Delete(String resource, Function controller) {
+    _routes['delete'][resource] = {
       "controller": controller
     };
   }
@@ -42,7 +49,7 @@ class Router {
 
   // Synchronizes a socket to a resource
   // Helper function to add a websocket to the changefeed broadcast
-  _sync(WebSocket ws, Request req) async {
+  _sync(Request req) async {
 
     Map<dynamic, dynamic> r = _routes[req.action][req.resource];
 
@@ -57,9 +64,9 @@ class Router {
     }
 
     // Skip existing sync connections
-    if (_syncs[r['archetype'].Table].contains(ws)) return;
+    if (_syncs[r['archetype'].Table].contains(req.socket)) return;
 
-    _syncs[r['archetype'].Table].add(ws);
+    _syncs[r['archetype'].Table].add(req.socket);
   }
 
   // Broadcast changes from a certain feed to a set of sockets through a controller
@@ -95,14 +102,16 @@ class Router {
 
   _handleIncoming(WebSocket ws) {
     return (msg) {
-      Request req = new Request(msg, _routes);
+      Request req = new Request(msg, ws, _routes);
+
+
 
       if (req.isValid != true) {
         ws.add(_wsError(req.isValid));
         return;
       }
 
-      _routes[req.action][req.resource]['controller'](ws, req);
+      _routes[req.action][req.resource]['controller'](req);
 
     };
   }
