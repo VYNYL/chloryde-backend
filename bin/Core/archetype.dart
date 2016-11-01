@@ -1,5 +1,6 @@
 import 'dart:async';
 import './db.dart';
+import 'package:json_schema/json_schema.dart' as Scheme;
 
 class Archetype {
 
@@ -9,8 +10,12 @@ class Archetype {
 
   Map<String, dynamic> _fields = {};
 
-  Archetype() {
+  var Schema = false;
 
+  Future<bool> validate(val) async {
+    if (Schema == false) return true;
+    var s = await Scheme.Schema.createSchema(Schema);
+    return s.validate(val);
   }
 
   operator [](String i) {

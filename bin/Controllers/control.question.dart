@@ -33,6 +33,14 @@ class CtrlQuestion {
 
     Question q = new Question();
 
+    var isValid = await q.validate(req.data);
+    if (!isValid) {
+      ws.add(JSON.encode({
+        "error": "Invalid question format"
+      }));
+      return;
+    }
+
     q.populate(req.data);
 
     await q.save();
