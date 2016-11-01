@@ -47,6 +47,13 @@ class CtrlQuestion {
 
   }
 
+  static PatchQuestion(Request req) async {
+    Question q = new Question();
+    await q.get(req.data['id']);
+    await q.update(req.data);
+
+  }
+
   static DeleteQuestion(Request req) async {
     Question q = new Question();
     await q.delete(req.data['id']);

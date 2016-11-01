@@ -14,6 +14,8 @@ class Routes extends Router {
 
     Delete("questions", CtrlQuestion.DeleteQuestion);
 
+    Patch("questions", CtrlQuestion.PatchQuestion);
+
   }
 
 }

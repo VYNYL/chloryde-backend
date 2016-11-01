@@ -9,6 +9,7 @@ class Router {
 
   Map<String, Map<String, dynamic>> _routes = {
     "put": {},
+    "patch": {},
     "sync": {},
     "desync": {},
     "get": {},
@@ -25,6 +26,12 @@ class Router {
 
   Put(String resource, Function controller) {
     _routes['put'][resource] = {
+      "controller": controller
+    };
+  }
+
+  Patch(String resource, Function controller) {
+    _routes['patch'][resource] = {
       "controller": controller
     };
   }

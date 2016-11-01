@@ -39,7 +39,7 @@ class Archetype<C extends Archetype> {
 
   populate([ data, unsafe = false ]) {
     data.forEach((k, v) {
-      if (Fields.contains(k) || unsafe == true) this[k] = v;
+      if (Fields.contains(k) || unsafe) this[k] = v;
     });
   }
 
@@ -74,6 +74,15 @@ class Archetype<C extends Archetype> {
   get(id) async {
     var c = await _open();
     var data = await db.r.table(Table).get(id).run(c);
+    this.populate(data, true);
+    print(this['id']);
+    c.close();
+  }
+
+  update(data) async {
+    print(this['id']);
+    var c = await _open();
+    await db.r.table(Table).get(this['id']).update(data).run(c);
     this.populate(data, true);
     c.close();
   }
