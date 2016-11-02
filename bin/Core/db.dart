@@ -7,7 +7,7 @@ class db {
 
   static connect({migrate: false}) async {
 
-    var c = await r.connect(db: 'rethinkdb', host: '127.0.0.1', port: 28015);
+    var c = await r.connect(db: 'rethinkdb', host: 'rethinkdb', port: 28015);
 
     if (!migrate) {
       c.use(Migrate.Database);
